@@ -1,0 +1,423 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EVA AI</title>
+<style>
+:root{--bg:#212121;--side:#171717;--panel:#2b2b2b;--input:#303030;--text:#f5f5f5;--muted:#aaa;--border:#414141;--accent:#d7e4ff;--accent-text:#172033}
+body.light{--bg:#fff;--side:#f5f5f5;--panel:#f2f2f2;--input:#fff;--text:#202020;--muted:#666;--border:#ddd;--accent:#202020;--accent-text:#fff}
+*{box-sizing:border-box}
+body{margin:0;height:100dvh;display:flex;overflow:hidden;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.sidebar{width:270px;flex-shrink:0;background:var(--side);padding:16px;display:flex;flex-direction:column;gap:15px;border-right:1px solid var(--border)}
+.brand{font-size:24px;font-weight:bold;padding:7px 4px;letter-spacing:.3px}
+.brand span{color:#8bafff}
+.sidebar-actions{display:flex;gap:7px}
+.action-btn{flex:1;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:9px;padding:11px 8px}
+.action-btn:hover,.history-item:hover,.icon-btn:hover{background:var(--panel)}
+.section-title{font-size:12px;color:var(--muted);padding:4px}
+.history{display:flex;flex-direction:column;gap:5px;overflow-y:auto;min-height:0}
+.history-row{display:flex;align-items:center;gap:3px;border-radius:8px}
+.history-row.active{background:var(--panel)}
+.history-item{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;padding:11px 8px;color:var(--text);background:transparent;border:0;border-radius:8px}
+.row-menu{background:transparent;color:var(--muted);border:0;padding:8px;border-radius:7px}
+.sidebar-footer{margin-top:auto;border-top:1px solid var(--border);padding-top:14px;color:var(--muted);font-size:12px;line-height:1.7}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:60px;flex-shrink:0;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid var(--border)}
+.topbar-title{font-size:16px;font-weight:bold;flex:1}
+.icon-btn{background:transparent;border:0;border-radius:8px;color:var(--text);padding:9px;font-size:18px}
+#chat{flex:1;overflow-y:auto;padding:28px 20px 12px;width:100%;max-width:900px;margin:0 auto;scroll-behavior:smooth}
+.welcome{text-align:center;margin:14vh auto 30px;max-width:600px}
+.welcome-logo{font-size:48px;margin-bottom:16px;color:#91b4ff}
+.welcome h1{font-size:30px;margin:0 0 12px}
+.welcome p{color:var(--muted);line-height:1.6}
+.message-row{display:flex;flex-direction:column;margin:0 0 25px;align-items:stretch}
+.message-label{font-size:12px;color:var(--muted);margin-bottom:8px}
+.message{line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}
+.message.user{align-self:flex-end;max-width:85%;background:var(--panel);padding:12px 16px;border-radius:18px}
+.message.assistant{width:100%;padding:0 2px}
+.message-actions{display:flex;gap:5px;margin-top:7px}
+.small-btn{font-size:12px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:5px 9px}
+.small-btn:hover{color:var(--text);background:var(--panel)}
+.composer-wrap{width:100%;max-width:900px;margin:0 auto;padding:12px 20px 18px}
+.composer{border:1px solid var(--border);background:var(--input);border-radius:18px;padding:10px 12px;display:flex;align-items:flex-end;gap:10px}
+#message{flex:1;min-width:0;max-height:180px;resize:none;border:0;outline:none;background:transparent;color:var(--text);padding:10px 3px;line-height:1.5}
+#message::placeholder{color:var(--muted)}
+.send-btn{border:0;border-radius:11px;background:var(--accent);color:var(--accent-text);padding:11px 15px;font-weight:bold}
+#status{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
+.typing{color:var(--muted);font-style:italic}
+#overlay{display:none}
+@media(max-width:700px){
+.sidebar{position:fixed;z-index:5;left:0;top:0;bottom:0;transform:translateX(-105%);transition:transform .2s;width:280px;box-shadow:none}
+.sidebar.open{transform:translateX(0);box-shadow:0 0 0 100vmax #0008}
+.topbar{padding:0 12px}
+#chat{padding:20px 14px 10px}
+.composer-wrap{padding:10px 12px 14px}
+.welcome{margin-top:12vh}
+.welcome h1{font-size:25px}
+}
+</style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar">
+    <div class="brand"><span>✦</span> EVA AI</div>
+    <div class="sidebar-actions">
+        <button class="action-btn" id="new-chat">＋ New chat</button>
+        <button class="action-btn" id="theme" title="Toggle theme">☼</button>
+    </div>
+    <div class="section-title">YOUR CONVERSATIONS</div>
+    <div class="history" id="history"></div>
+    <div class="sidebar-footer">EVA AI · Local assistant<br>Powered by Ollama<br>Your chats are stored in this browser.</div>
+</aside>
+
+<main class="main">
+    <header class="topbar">
+        <button class="icon-btn" id="menu" aria-label="Open sidebar">☰</button>
+        <div class="topbar-title">EVA <span style="color:var(--muted);font-weight:normal">AI</span></div>
+        <button class="icon-btn" id="clear-chat" title="Clear current conversation">⌫</button>
+    </header>
+
+    <section id="chat" aria-live="polite"></section>
+
+    <div class="composer-wrap">
+        <form id="chat-form">
+            <div class="composer">
+                <textarea id="message" rows="1" placeholder="Message EVA..." aria-label="Message EVA"></textarea>
+                <button class="send-btn" id="send" type="submit">↑</button>
+            </div>
+        </form>
+        <div id="status">EVA can make mistakes. Verify important information.</div>
+    </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const chat = $("chat");
+const input = $("message");
+const form = $("chat-form");
+const sendButton = $("send");
+const historyList = $("history");
+const sidebar = $("sidebar");
+
+let chats = [];
+let activeChatId = null;
+let controller = null;
+let isGenerating = false;
+
+try {
+    const saved = JSON.parse(localStorage.getItem("eva_chats") || "[]");
+    if (Array.isArray(saved)) {
+        chats = saved.filter(c =>
+            c && typeof c.id === "string" &&
+            typeof c.title === "string" &&
+            Array.isArray(c.messages)
+        );
+    }
+} catch {
+    chats = [];
+}
+
+try {
+    document.body.classList.toggle(
+        "light",
+        localStorage.getItem("eva_theme") === "light"
+    );
+} catch {}
+
+function saveChats() {
+    try {
+        localStorage.setItem("eva_chats", JSON.stringify(chats));
+        $("status").textContent = "EVA can make mistakes. Verify important information.";
+    } catch {
+        $("status").textContent = "Could not save chats. Browser storage may be full.";
+    }
+}
+
+function currentChat() {
+    return chats.find(c => c.id === activeChatId);
+}
+
+function createChat() {
+    if (isGenerating) return;
+    const item = {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString() + Math.random(),
+        title: "New chat",
+        messages: []
+    };
+    chats.unshift(item);
+    activeChatId = item.id;
+    saveChats();
+    renderHistory();
+    renderMessages();
+    input.focus();
+    sidebar.classList.remove("open");
+}
+
+function renderHistory() {
+    historyList.replaceChildren();
+
+    chats.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "history-row" + (item.id === activeChatId ? " active" : "");
+
+        const open = document.createElement("button");
+        open.className = "history-item";
+        open.textContent = item.title;
+        open.title = item.title;
+        open.onclick = () => {
+            if (isGenerating) return;
+            activeChatId = item.id;
+            renderHistory();
+            renderMessages();
+            sidebar.classList.remove("open");
+        };
+
+        const menu = document.createElement("button");
+        menu.className = "row-menu";
+        menu.textContent = "⋯";
+        menu.title = "Conversation options";
+        menu.onclick = event => {
+            event.stopPropagation();
+            showChatOptions(item);
+        };
+
+        row.append(open, menu);
+        historyList.appendChild(row);
+    });
+}
+
+function showChatOptions(item) {
+    if (isGenerating) return;
+    const action = prompt("Type R to rename or D to delete this chat:");
+    if (!action) return;
+
+    if (action.trim().toLowerCase() === "r") {
+        const title = prompt("Enter a new chat name:", item.title);
+        if (title && title.trim()) {
+            item.title = title.trim().slice(0, 80);
+            saveChats();
+            renderHistory();
+        }
+    } else if (action.trim().toLowerCase() === "d") {
+        if (!confirm("Delete this conversation permanently from this browser?")) return;
+        chats = chats.filter(c => c.id !== item.id);
+        if (activeChatId === item.id) {
+            activeChatId = chats.length ? chats[0].id : null;
+        }
+        if (!activeChatId) {
+            createChat();
+            return;
+        }
+        saveChats();
+        renderHistory();
+        renderMessages();
+    }
+}
+
+function renderMessages() {
+    chat.replaceChildren();
+    const item = currentChat();
+
+    if (!item || item.messages.length === 0) {
+        const welcome = document.createElement("div");
+        welcome.className = "welcome";
+        const logo = document.createElement("div");
+        logo.className = "welcome-logo";
+        logo.textContent = "✦";
+        const heading = document.createElement("h1");
+        heading.textContent = "How can I help you today?";
+        const description = document.createElement("p");
+        description.textContent = "I'm EVA, your personal AI assistant running locally on your computer.";
+        welcome.append(logo, heading, description);
+        chat.appendChild(welcome);
+        return;
+    }
+
+    item.messages.forEach(m => addMessage(m.content, m.role, false));
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function addMessage(text, role, actions = true) {
+    const row = document.createElement("div");
+    row.className = "message-row";
+
+    const label = document.createElement("div");
+    label.className = "message-label";
+    label.textContent = role === "user" ? "You" : "✦ EVA";
+
+    const bubble = document.createElement("div");
+    bubble.className = "message " + role;
+    bubble.textContent = text;
+    row.append(label, bubble);
+
+    if (actions && role === "assistant") {
+        const buttons = document.createElement("div");
+        buttons.className = "message-actions";
+        const copy = document.createElement("button");
+        copy.className = "small-btn";
+        copy.textContent = "Copy response";
+        copy.onclick = async () => {
+            try {
+                await navigator.clipboard.writeText(text);
+                copy.textContent = "Copied!";
+                setTimeout(() => copy.textContent = "Copy response", 1200);
+            } catch {
+                copy.textContent = "Copy unavailable";
+            }
+        };
+        buttons.appendChild(copy);
+        row.appendChild(buttons);
+    }
+
+    chat.appendChild(row);
+    chat.scrollTop = chat.scrollHeight;
+    return {row, bubble};
+}
+
+function setGenerating(value) {
+    isGenerating = value;
+    sendButton.textContent = value ? "■" : "↑";
+    sendButton.title = value ? "Stop waiting for this response" : "Send message";
+    input.disabled = value;
+}
+
+$("new-chat").onclick = createChat;
+$("menu").onclick = () => sidebar.classList.toggle("open");
+
+$("theme").onclick = () => {
+    document.body.classList.toggle("light");
+    try {
+        localStorage.setItem(
+            "eva_theme",
+            document.body.classList.contains("light") ? "light" : "dark"
+        );
+    } catch {}
+};
+
+$("clear-chat").onclick = () => {
+    if (isGenerating) return;
+    const item = currentChat();
+    if (!item || !item.messages.length) return;
+    if (!confirm("Clear all messages in this conversation?")) return;
+    item.messages = [];
+    saveChats();
+    renderMessages();
+};
+
+input.addEventListener("input", () => {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 180) + "px";
+});
+
+input.addEventListener("keydown", event => {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        if (!isGenerating) form.requestSubmit();
+    }
+});
+
+sendButton.addEventListener("click", event => {
+    if (isGenerating) {
+        event.preventDefault();
+        if (controller) controller.abort();
+    }
+});
+
+form.addEventListener("submit", async event => {
+    event.preventDefault();
+    const text = input.value.trim();
+    if (!text || isGenerating) return;
+
+    if (!activeChatId) {
+        const item = {
+            id: Date.now().toString() + Math.random(),
+            title: "New chat",
+            messages: []
+        };
+        chats.unshift(item);
+        activeChatId = item.id;
+    }
+
+    const item = currentChat();
+    if (!item) return;
+
+    if (item.title === "New chat") item.title = text.slice(0, 32);
+
+    const history = item.messages.slice(-20).map(m => ({
+        role: m.role,
+        content: m.content
+    }));
+
+    item.messages.push({role: "user", content: text});
+    saveChats();
+    renderHistory();
+    renderMessages();
+
+    input.value = "";
+    input.style.height = "auto";
+    setGenerating(true);
+
+    const pending = addMessage("EVA is thinking...", "assistant", false);
+    controller = new AbortController();
+
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({message: text, history}),
+            signal: controller.signal
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || "Request failed");
+
+        item.messages.push({role: "assistant", content: data.reply});
+        pending.bubble.textContent = data.reply;
+
+        const actions = document.createElement("div");
+        actions.className = "message-actions";
+        const copy = document.createElement("button");
+        copy.className = "small-btn";
+        copy.textContent = "Copy response";
+        copy.onclick = async () => {
+            try {
+                await navigator.clipboard.writeText(data.reply);
+                copy.textContent = "Copied!";
+                setTimeout(() => copy.textContent = "Copy response", 1200);
+            } catch {
+                copy.textContent = "Copy unavailable";
+            }
+        };
+        actions.appendChild(copy);
+        pending.row.appendChild(actions);
+        saveChats();
+
+    } catch (error) {
+        if (error.name === "AbortError") {
+            pending.bubble.textContent = "Stopped waiting for the response. The local model may continue processing briefly.";
+        } else {
+            pending.bubble.textContent = "Sorry, I couldn't respond: " + error.message;
+        }
+    } finally {
+        controller = null;
+        setGenerating(false);
+        renderHistory();
+        input.focus();
+        chat.scrollTop = chat.scrollHeight;
+    }
+});
+
+if (chats.length) {
+    activeChatId = chats[0].id;
+    renderHistory();
+    renderMessages();
+} else {
+    createChat();
+}
+</script>
+</body>
+</html>
