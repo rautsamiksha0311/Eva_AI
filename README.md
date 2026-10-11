@@ -1,17 +1,10 @@
 # ✨ EVA AI — Your Personal AI Assistant
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10-blue?logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white" alt="FastAPI">
-  <img src="https://img.shields.io/badge/Ollama-Local%20AI-black?logo=ollama&logoColor=white" alt="Ollama">
-  <img src="https://img.shields.io/badge/Model-Llama%203.2-purple" alt="Llama 3.2">
-</p>
+![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white) ![Ollama](https://img.shields.io/badge/Ollama-Local%20AI-black?logo=ollama&logoColor=white) ![Llama 3.2](https://img.shields.io/badge/Model-Llama%203.2-purple)
 
-<p align="center">
-  <b>A locally running AI chatbot built with Python, FastAPI, and Ollama.</b>
-  <br>
-  Chat with EVA, manage conversations, and keep your chat history in your browser.
-</p>
+A locally running AI chatbot built with Python, FastAPI, and Ollama.
+
+Chat with EVA, manage conversations, and keep your chat history in your browser.
 
 ---
 
@@ -19,15 +12,17 @@
 
 **EVA AI** is a personal AI chatbot powered by the Llama 3.2 language model through Ollama. It provides a modern chat interface and runs locally on your computer.
 
+This project explores AI integration, backend development, and building a complete web application using Python.
+
 ## 🚀 Features
 
-- 💬 AI-powered conversations
-- 🗂️ Create, rename, and delete chats
-- 💾 Save chat history in your browser
-- 🌙 Dark mode interface
-- 📋 Copy AI responses
-- ⚡ FastAPI backend
-- 🤖 Local AI model using Ollama
+- 💬 **AI Conversations** — Ask questions and receive AI-generated responses.
+- 🗂️ **Chat Management** — Create, rename, and delete conversations.
+- 💾 **Local Chat History** — Save conversations in your browser.
+- 🌙 **Dark Mode** — Use a dark-themed interface.
+- 📋 **Copy Responses** — Copy AI responses with one click.
+- ⚡ **FastAPI Backend** — Connect the web interface to the AI model.
+- 🤖 **Local AI Model** — Generate responses through Ollama without paying per API request.
 
 ## 🛠️ Tech Stack
 
@@ -35,47 +30,74 @@
 |---|---|
 | Python | Backend programming |
 | FastAPI | Web server and API |
-| Ollama | Local model runtime |
-| Llama 3.2 (1B) | AI response generation |
-| HTML, CSS, JavaScript | User interface |
+| Ollama | Runs the local language model |
+| Llama 3.2 (1B) | Generates AI responses |
+| HTML | Webpage structure |
+| CSS | Interface styling |
+| JavaScript | Chat functionality |
 
-## ⚙️ Installation
+## 📸 Application Preview
 
-### 1. Clone the repository
+_Add a screenshot of EVA AI here._
+
+To add a screenshot, upload it to your repository and use:
+
+```markdown
+![EVA AI Screenshot](screenshots/eva-ai.png)
+```
+
+## ⚙️ Installation and Setup
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/rautsamiksha0311/Eva_AI.git
 cd Eva_AI
 ```
 
-### 2. Create and activate a virtual environment
+### 2. Create a Virtual Environment
 
 ```bash
 python -m venv venv
+```
+
+### 3. Activate the Virtual Environment
+
+**Windows PowerShell:**
+
+```powershell
 .\venv\Scripts\Activate.ps1
 ```
 
-### 3. Install dependencies
+### 4. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Install and download the AI model
+### 5. Install Ollama and Download the Model
 
-Install [Ollama](https://ollama.com/), then run:
+Download and install [Ollama](https://ollama.com/).
+
+Open your terminal and run:
 
 ```bash
 ollama pull llama3.2:1b
 ```
 
-### 5. Start EVA AI
+### 6. Run EVA AI
+
+Start the FastAPI server:
 
 ```bash
 python -m uvicorn main:app --reload
 ```
 
-Open **http://127.0.0.1:8000** in your browser.
+Open your browser and visit:
+
+**http://127.0.0.1:8000**
+
+Make sure Ollama is running on your computer.
 
 ## 📁 Project Structure
 
@@ -83,25 +105,26 @@ Open **http://127.0.0.1:8000** in your browser.
 Eva_AI/
 ├── main.py
 ├── requirements.txt
+├── .gitignore
 ├── README.md
 └── templates/
     └── index.html
 ```
 
-## 🔐 Privacy
+## 🔐 Privacy and Security
 
-- The model runs locally through Ollama.
-- Chat history is stored in browser local storage.
-- Never commit API keys, passwords, or your `.env` file.
+- The AI model runs locally through Ollama.
+- Chat history is stored in your browser's local storage.
+- Never upload API keys, passwords, or your `.env` file to GitHub.
+- Keep your virtual environment (`venv/`) out of the repository.
 
 ## 🎯 Future Improvements
 
-- Streaming responses
-- Voice input and output
-- Document-based question answering (RAG)
-- Improved conversation memory
-
----
+- ⚡ Streaming AI responses
+- 🎙️ Voice input and output
+- 🧠 Improved conversation memory
+- 📚 Document-based question answering (RAG)
+- 🛠️ Improved error handling
 
 ## 📜 License
 
@@ -109,4 +132,4 @@ This project is available for educational and portfolio purposes.
 
 ## 📞 Contact
 
-For questions or suggestions, reach out at **rautsamiksha0811@gmail.com** 
+For questions or suggestions, reach out at **rautsamiksha0811@gmail.com**
