@@ -101,11 +101,12 @@ Eva_AI/
 - Document-based question answering (RAG)
 - Improved conversation memory
 
-## 👩‍💻 Author
-
-**Samiksha Raut**  
-MSc IT Student | Aspiring AI Engineer
-
 ---
 
-⭐ If you like this project, consider giving it a star!
+## 📜 License
+
+This project is available for educational and portfolio purposes.
+
+## 📞 Contact
+
+For questions or suggestions, reach out at **rautsamiksha0811@gmail.com** 
