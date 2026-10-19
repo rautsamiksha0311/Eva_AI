@@ -132,4 +132,4 @@ This project is available for educational and portfolio purposes.
 
 ## 📞 Contact
 
-For questions or suggestions, reach out at **rautsamiksha0811@gmail.com**
+For questions or suggestions, reach out at **rautsamiksha0311@gmail.com**
